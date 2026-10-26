@@ -1,0 +1,2 @@
+br.com.guaraplay.player:xml/device_admin = 0x7f020000
+br.com.guaraplay.player:drawable/logo = 0x7f010000

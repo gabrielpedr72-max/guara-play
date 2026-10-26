@@ -1,0 +1,10 @@
+#Tue Oct 20 22:17:02 BRT 2026
+base.2=/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/build/intermediates/dex/debug/mergeProjectDexDebug/4/classes.dex
+path.2=4/classes.dex
+base.1=/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/build/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex
+path.1=0/classes.dex
+base.0=/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex
+renamed.2=classes3.dex
+renamed.1=classes2.dex
+renamed.0=classes.dex
+path.0=classes.dex

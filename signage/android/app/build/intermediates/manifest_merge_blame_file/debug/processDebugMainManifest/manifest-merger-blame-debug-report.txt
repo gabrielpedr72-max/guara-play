@@ -1,0 +1,160 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="br.com.guaraplay.player"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="23"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:4:5-67
+11-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:4:22-64
+12    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+12-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:5:5-81
+12-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:5:22-78
+13    <uses-permission android:name="android.permission.WAKE_LOCK" />
+13-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:6:5-68
+13-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:6:22-65
+14    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+14-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:7:5-77
+14-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:7:22-74
+15    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+15-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:8:5-87
+15-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:8:22-84
+16    <!-- Permite reabrir o player sozinho em segundo plano (Android 10 ou mais novo) -->
+17    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+17-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:10:5-78
+17-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:10:22-75
+18
+19    <uses-feature
+19-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:12:5-90
+20        android:name="android.hardware.touchscreen"
+20-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:12:19-62
+21        android:required="false" />
+21-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:12:63-87
+22    <uses-feature
+22-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:13:5-87
+23        android:name="android.software.leanback"
+23-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:13:19-59
+24        android:required="false" />
+24-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:13:60-84
+25
+26    <application
+26-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:15:5-67:19
+27        android:name="br.com.guaraplay.player.GuaraApp"
+27-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:16:9-33
+28        android:allowBackup="false"
+28-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:20:9-36
+29        android:banner="@drawable/logo"
+29-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:19:9-40
+30        android:debuggable="true"
+31        android:extractNativeLibs="false"
+32        android:icon="@drawable/logo"
+32-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:18:9-38
+33        android:label="Guará Play"
+33-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:17:9-35
+34        android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+34-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:22:9-73
+35        android:usesCleartextTraffic="true" >
+35-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:21:9-44
+36        <activity
+36-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:24:9-43:20
+37            android:name="br.com.guaraplay.player.MainActivity"
+37-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:25:13-41
+38            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|uiMode|layoutDirection"
+38-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:28:13-138
+39            android:exported="true"
+39-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:26:13-36
+40            android:launchMode="singleTask" >
+40-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:27:13-44
+41            <intent-filter>
+41-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:29:13-32:29
+42                <action android:name="android.intent.action.MAIN" />
+42-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:30:17-69
+42-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:30:25-66
+43
+44                <category android:name="android.intent.category.LAUNCHER" />
+44-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:31:17-77
+44-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:31:27-74
+45            </intent-filter>
+46            <intent-filter>
+46-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:33:13-36:29
+47                <action android:name="android.intent.action.MAIN" />
+47-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:30:17-69
+47-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:30:25-66
+48
+49                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+49-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:35:17-86
+49-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:35:27-83
+50            </intent-filter>
+51            <!-- Permite definir o Guará Play como "tela inicial": o aparelho liga direto nele -->
+52            <intent-filter>
+52-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:38:13-42:29
+53                <action android:name="android.intent.action.MAIN" />
+53-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:30:17-69
+53-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:30:25-66
+54
+55                <category android:name="android.intent.category.HOME" />
+55-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:40:17-73
+55-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:40:27-70
+56                <category android:name="android.intent.category.DEFAULT" />
+56-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:41:17-76
+56-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:41:27-73
+57            </intent-filter>
+58        </activity>
+59
+60        <service
+60-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:45:9-48:56
+61            android:name="br.com.guaraplay.player.KeepAliveService"
+61-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:46:13-45
+62            android:exported="false"
+62-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:47:13-37
+63            android:foregroundServiceType="dataSync" />
+63-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:48:13-53
+64
+65        <receiver
+65-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:50:9-56:20
+66            android:name="br.com.guaraplay.player.BootReceiver"
+66-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:50:19-47
+67            android:exported="true" >
+67-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:50:48-71
+68            <intent-filter>
+68-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:51:13-55:29
+69                <action android:name="android.intent.action.BOOT_COMPLETED" />
+69-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:52:17-79
+69-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:52:25-76
+70                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+70-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:53:17-82
+70-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:53:25-79
+71                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+71-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:54:17-84
+71-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:54:25-81
+72            </intent-filter>
+73        </receiver>
+74        <receiver
+74-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:58:9-66:20
+75            android:name="br.com.guaraplay.player.AdminReceiver"
+75-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:59:13-42
+76            android:exported="true"
+76-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:60:13-36
+77            android:permission="android.permission.BIND_DEVICE_ADMIN" >
+77-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:61:13-70
+78            <meta-data
+78-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:62:13-103
+79                android:name="android.app.device_admin"
+79-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:62:24-63
+80                android:resource="@xml/device_admin" />
+80-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:62:64-100
+81
+82            <intent-filter>
+82-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:63:13-65:29
+83                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+83-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:64:17-82
+83-->/home/gaab/Área de trabalho/PROJETOS/GUARÁ_PLAY/signage/android/app/src/main/AndroidManifest.xml:64:25-79
+84            </intent-filter>
+85        </receiver>
+86    </application>
+87
+88</manifest>

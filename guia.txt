@@ -1,0 +1,11 @@
+- Iniciar o servidor:
+
+Abrir o terminal:
+
+ADMIN_PASS=guará123_ node server.js
+
+- Acessar o painel administrativo:
+
+https://localhost:3000
+
+https://localhost:3000/player.html

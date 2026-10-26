@@ -1,0 +1,2 @@
+int drawable logo 0x7f010000
+int xml device_admin 0x7f020000
