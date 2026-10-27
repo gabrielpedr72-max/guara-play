@@ -50,7 +50,10 @@ async function poll() {
   apply();
 }
 function apply() {
-  if (!man || man.connecting) return msg('Conectando…', 'Aguardando o servidor');
+  if (!man || man.connecting) {
+    const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    return msg('Conectando…', man && man.error ? 'Sem conexão com ' + esc(man.server || '') + '<br>' + esc(man.error) : 'Aguardando o servidor');
+  }
   if (man.downloading) { run++; stop(); cur = ''; return msg('Baixando conteúdo…', man.downloading); }
   if (man.paired) localStorage.paired = '1';
   else if (localStorage.paired === '1') { // tela removida no painel: volta a pedir pareamento com código novo
@@ -71,21 +74,42 @@ async function loop(id) {
     try { await play(it); } catch { await wait(1500); }
   }
 }
-function play(it) {
+// ---- relatório de exibição: soma, por hora (UTC) e conteúdo, quanto tempo cada coisa ficou na tela ----
+const jget = (k, d) => { try { return JSON.parse(localStorage[k]) || d; } catch { return d; } };
+function rec(it, ms) {
+  const sec = Math.min(ms / 1000, 3600); if (sec < 1 || !it.id) return;
+  try { const acc = jget('gacc', {}), k = new Date().toISOString().slice(0, 13) + '|' + it.id, r = acc[k] || (acc[k] = [0, 0]);
+    r[0] += sec; r[1] += 1; localStorage.gacc = JSON.stringify(acc); } catch {}
+}
+async function flushLog() { // envia o acumulado; se estiver sem internet, guarda e tenta de novo depois
+  try {
+    let pend = jget('gpend', null);
+    if (!pend) {
+      const acc = jget('gacc', {}), ks = Object.keys(acc); if (!ks.length) return;
+      pend = { b: uid(), rows: ks.map(k => { const [h, c] = k.split('|'); return { h, c, s: Math.round(acc[k][0]), n: acc[k][1] }; }) };
+      localStorage.gpend = JSON.stringify(pend); localStorage.gacc = '{}';
+    }
+    const r = await fetch('/api/player/log?device=' + dev, { method: 'POST', body: JSON.stringify(pend) });
+    if (r.ok) localStorage.removeItem('gpend');
+  } catch {}
+}
+setInterval(flushLog, 60000);
+async function play(it) {
+  let t0 = 0; // só conta a partir do momento em que o conteúdo realmente apareceu
   const cancel = new Promise(r => stop = r);
   const work = (async () => {
     if (it.type === 'clock') {
       const tick = () => { const d = new Date(); stage.innerHTML = `<div><div class="big">${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div><div class="sub">${d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</div></div>`; };
-      tick(); const t = setInterval(tick, 1000); try { await Promise.race([wait(it.seconds * 1000), cancel]); } finally { clearInterval(t); } return;
+      tick(); t0 = Date.now(); const t = setInterval(tick, 1000); try { await Promise.race([wait(it.seconds * 1000), cancel]); } finally { clearInterval(t); } return;
     }
     const url = NATIVE ? it.url : URL.createObjectURL(await fetchBlob(it.url)); // no app: toca direto do arquivo, sem carregar na memória
     try {
-      if (it.type === 'image') { stage.innerHTML = `<img src="${url}">`; await wait(it.seconds * 1000); }
+      if (it.type === 'image') { stage.innerHTML = `<img src="${url}">`; t0 = Date.now(); await wait(it.seconds * 1000); }
       else await new Promise((ok, no) => { const v = document.createElement('video'); v.src = url; v.muted = !man.sound; v.autoplay = v.playsInline = true;
-        v.onended = ok; v.onerror = no; stage.replaceChildren(v); v.play().catch(() => { v.muted = true; v.play().catch(no); }); });
+        v.onplaying = () => { if (!t0) t0 = Date.now(); }; v.onended = ok; v.onerror = no; stage.replaceChildren(v); v.play().catch(() => { v.muted = true; v.play().catch(no); }); });
     } finally { if (!NATIVE) URL.revokeObjectURL(url); }
   })();
-  return Promise.race([work, cancel]);
+  try { await Promise.race([work, cancel]); } finally { if (t0) rec(it, Date.now() - t0); }
 }
 
 // Captura do que está na tela e envia ao painel (a pedido).

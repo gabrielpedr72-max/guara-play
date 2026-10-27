@@ -113,6 +113,7 @@ const ICON = {
   telas: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
   arquivos: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg>',
   listas: '<svg viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>',
+  relatorios: '<svg viewBox="0 0 24 24"><path d="M5 20V11M11 20V4M17 20v-6M3 20h18"/></svg>',
   status: '<svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
   conta: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>' };
 
@@ -137,7 +138,7 @@ function showLogin() {
 async function boot() {
   await load();
   $('#root').innerHTML = `<div class="app"><aside class="side"><div class="brand"><img src="/logo.png" alt=""><span>Guará Play</span></div><a class="gs" id="gs" href="#/status"></a>
-  <nav>${[['telas', 'Telas'], ['arquivos', 'Arquivos'], ['listas', 'Listas de Reprodução'], ['status', 'Status'], ['conta', 'Minha conta']].map(([k, n]) => `<a href="#/${k}" data-r="${k}">${ICON[k]}${n}</a>`).join('')}</nav>
+  <nav>${[['telas', 'Telas'], ['arquivos', 'Arquivos'], ['listas', 'Listas de Reprodução'], ['relatorios', 'Relatórios'], ['status', 'Status'], ['conta', 'Minha conta']].map(([k, n]) => `<a href="#/${k}" data-r="${k}">${ICON[k]}${n}</a>`).join('')}</nav>
   <div class="foot"><button id="tm"></button><button onclick="token='';localStorage.t='';showLogin()">Sair</button></div></aside><main id="page"></main></div>`;
   const tm = $('#tm'), lbl = () => tm.textContent = document.documentElement.dataset.theme === 'dark' ? 'Modo claro' : 'Modo escuro';
   tm.onclick = () => { const d = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = localStorage.theme = d; lbl(); }; lbl();
@@ -359,12 +360,104 @@ function pConta() {
     ['Horizontais', sc.filter(s => !((s.rotation || 0) % 180)).length], ['Verticais', sc.filter(s => (s.rotation || 0) % 180).length]])}</div></div></div>`;
 }
 
+/* ---------- Relatórios ---------- */
+//#pure-start
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const addDays = (s, n) => { const d = new Date(s + 'T12:00:00'); d.setDate(d.getDate() + n); return iso(d); };
+const fdur = s => { s = Math.round(s); if (s >= 3600) return `${Math.floor(s / 3600)}h ${String(Math.floor(s % 3600 / 60)).padStart(2, '0')}min`; if (s >= 60) return `${Math.floor(s / 60)}min`; return `${s}s`; };
+const fhr = s => (s / 3600).toFixed(1).replace('.', ',');
+const bkey = (d, g) => { if (g === 'month') return d.slice(0, 7); if (g === 'week') { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return iso(x); } return d; };
+const blabel = (k, g) => g === 'month' ? k.slice(5) + '/' + k.slice(2, 4) : k.slice(8) + '/' + k.slice(5, 7);
+function relAgg(data, from, to, f) { // soma o período respeitando os filtros de tela e de conteúdo
+  const keys = [], disp = {}, onl = {}, perScreen = {}, perContent = {}, tot = { secs: 0, plays: 0, online: 0 }; let days = 0;
+  for (let d = from; d <= to; d = addDays(d, 1)) {
+    days++; const k = bkey(d, f.gran); if (!(k in disp)) { keys.push(k); disp[k] = 0; onl[k] = 0; }
+    for (const [sid, e] of Object.entries(data.days[d] || {})) {
+      if (f.screen && f.screen !== sid) continue;
+      const ps = perScreen[sid] ||= { online: 0, secs: 0, plays: 0 };
+      ps.online += e.online || 0; onl[k] += e.online || 0; tot.online += e.online || 0;
+      for (const [cid, [sec, n]] of Object.entries(e.c || {})) {
+        if (f.content && f.content !== cid) continue;
+        ps.secs += sec; ps.plays += n; disp[k] += sec; tot.secs += sec; tot.plays += n;
+        const pc = perContent[cid] ||= { secs: 0, plays: 0 }; pc.secs += sec; pc.plays += n;
+      }
+    }
+  }
+  return { keys, disp, onl, tot, perScreen, perContent, days };
+}
+//#pure-end
+const R = { preset: '7d', from: '', to: '', gran: 'day', screen: '', content: '', data: null };
+function relRange(today) {
+  if (R.preset === 'custom') return [R.from || today, R.to || today];
+  if (R.preset === 'today') return [today, today];
+  if (R.preset === '7d') return [addDays(today, -6), today];
+  if (R.preset === '30d') return [addDays(today, -29), today];
+  const [y, m] = today.split('-').map(Number), p2 = n => String(n).padStart(2, '0');
+  if (R.preset === 'month') return [`${y}-${p2(m)}-01`, today];
+  const ly = m === 1 ? y - 1 : y, lm = m === 1 ? 12 : m - 1;
+  return [`${ly}-${p2(lm)}-01`, `${ly}-${p2(lm)}-${p2(new Date(ly, lm, 0).getDate())}`];
+}
+function relChart(a, f) {
+  const W = 800, H = 250, L = 46, B = 26, T = 10, n = a.keys.length, showO = !f.content;
+  const vals = a.keys.map(k => a.disp[k] / 3600), onl = a.keys.map(k => a.onl[k] / 3600);
+  const mx = Math.max(0.1, ...vals, ...(showO ? onl : [])), pw = 10 ** Math.floor(Math.log10(mx)), top = Math.ceil(mx / pw * 2) / 2 * pw;
+  const bw = (W - L - 8) / n, bar = Math.min(bw * 0.7, 44), y = v => T + (H - T - B) * (1 - v / top), cx = i => L + bw * (i + 0.5), step = Math.ceil(n / 14);
+  const grid = [0, top / 2, top].map(v => `<line x1="${L}" x2="${W - 4}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" font-size="11" style="fill:var(--mut)">${String(+v.toFixed(1)).replace('.', ',')} h</text>`).join('');
+  const bars = vals.map((v, i) => `<rect x="${cx(i) - bar / 2}" y="${y(v)}" width="${bar}" height="${Math.max(0, H - B - y(v))}" rx="3" style="fill:var(--ac)"><title>${blabel(a.keys[i], f.gran)}: ${fdur(v * 3600)} de exibição${showO ? ' · ' + fdur(onl[i] * 3600) + ' online' : ''}</title></rect>`).join('');
+  const labs = a.keys.map((k, i) => i % step ? '' : `<text x="${cx(i)}" y="${H - 8}" text-anchor="middle" font-size="11" style="fill:var(--mut)">${blabel(k, f.gran)}</text>`).join('');
+  const line = !showO ? '' : n > 1 ? `<polyline fill="none" stroke-width="2" stroke-dasharray="5 4" style="stroke:var(--mut)" points="${onl.map((v, i) => `${cx(i)},${y(v)}`).join(' ')}"/>` : `<circle cx="${cx(0)}" cy="${y(onl[0])}" r="4" style="fill:var(--mut)"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Horas de exibição por período">${grid}${bars}${line}${labs}</svg>`;
+}
+async function relLoad() {
+  const [from, to] = relRange(iso(new Date()));
+  $('#page').innerHTML = '<div class="card"><p class="mut">Carregando…</p></div>';
+  try { R.data = await api(`stats?from=${from}&to=${to}`); }
+  catch (e) { if (e.message !== 'login') $('#page').innerHTML = `<div class="card"><p>${esc(e.message)}</p><button onclick="R.preset='7d';relLoad()">Voltar para 7 dias</button></div>`; return; }
+  relDraw();
+}
+function relDraw() {
+  const d = R.data, [from, to] = relRange(iso(new Date())), f = { screen: R.screen, content: R.content, gran: R.gran }, a = relAgg(d, from, to, f);
+  const cids = new Set(), sids = new Set();
+  for (const day of Object.values(d.days)) for (const [sid, e] of Object.entries(day)) { sids.add(sid); Object.keys(e.c || {}).forEach(c => cids.add(c)); }
+  const nm = c => d.names[c] || 'Conteúdo removido', sn = s => d.screens[s] || 'Tela removida';
+  const opt = (v, cur, t) => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(t)}</option>`;
+  const P = [['today', 'Hoje'], ['7d', '7 dias'], ['30d', '30 dias'], ['month', 'Este mês'], ['lastmonth', 'Mês passado'], ['custom', 'Personalizado']];
+  const empty = !a.tot.secs && !a.tot.online;
+  const kpi = (t, v, sub) => `<div class="card"><h3>${t}</h3><div style="font-size:26px;font-weight:700">${v}</div><div class="mut" style="font-size:13px">${sub}</div></div>`;
+  const rowsS = Object.entries(a.perScreen).sort((x, y) => y[1].secs - x[1].secs || y[1].online - x[1].online).map(([s, v]) =>
+    `<tr style="cursor:pointer" onclick="R.screen='${esc(s)}';relDraw()"><td>${esc(sn(s))}</td><td>${fdur(v.online)}</td><td>${fdur(v.secs)}</td><td>${v.online ? Math.round(v.secs / v.online * 100) + '%' : '—'}</td><td>${v.plays}</td></tr>`).join('');
+  const rowsC = Object.entries(a.perContent).sort((x, y) => y[1].secs - x[1].secs).map(([c, v]) =>
+    `<tr style="cursor:pointer" onclick="R.content='${esc(c)}';relDraw()"><td>${esc(nm(c))}</td><td>${fdur(v.secs)}</td><td>${fhr(v.secs / Math.max(a.days, 1))} h/dia</td><td>${a.tot.secs ? Math.round(v.secs / a.tot.secs * 100) + '%' : '—'}</td><td>${v.plays}</td></tr>`).join('');
+  $('#page').innerHTML = `<div class="card"><div class="ph"><h1>Relatórios de exibição</h1><button onclick="relLoad()">Atualizar</button><button class="p" onclick="relCsv()">Exportar CSV</button></div>
+  <div class="tb">${P.map(([k, t]) => `<button class="${R.preset === k ? 'p' : ''}" onclick="R.preset='${k}';${k === 'custom' ? `R.from='${from}';R.to='${to}';` : ''}relLoad()">${t}</button>`).join('')}
+    ${R.preset === 'custom' ? `<label>de <input type="date" value="${from}" max="${iso(new Date())}" onchange="R.from=this.value;relLoad()"></label><label>até <input type="date" value="${to}" max="${iso(new Date())}" onchange="R.to=this.value;relLoad()"></label>` : ''}</div>
+  <div class="tb"><label>Agrupar por <select onchange="R.gran=this.value;relDraw()">${[['day', 'Dia'], ['week', 'Semana'], ['month', 'Mês']].map(([k, t]) => opt(k, R.gran, t)).join('')}</select></label>
+    <label>Tela <select onchange="R.screen=this.value;relDraw()">${opt('', R.screen, 'Todas as telas')}${[...sids].sort((x, y) => sn(x).localeCompare(sn(y))).map(s => opt(s, R.screen, sn(s))).join('')}</select></label>
+    <label>Conteúdo <select onchange="R.content=this.value;relDraw()">${opt('', R.content, 'Todos os conteúdos')}${[...cids].sort((x, y) => nm(x).localeCompare(nm(y))).map(c => opt(c, R.content, nm(c))).join('')}</select></label></div>
+  <div class="stats">${kpi('Horas de exibição', fdur(a.tot.secs), 'tempo real na tela')}${kpi('Média por dia', fdur(a.tot.secs / Math.max(a.days, 1)), a.days + (a.days === 1 ? ' dia' : ' dias') + ' no período')}${kpi('Exibições', a.tot.plays.toLocaleString('pt-BR'), 'vezes que um conteúdo tocou')}${kpi('Horas online', fdur(a.tot.online), 'telas em contato com o servidor')}</div></div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:14px;text-transform:uppercase">${f.content ? esc(nm(f.content)) : 'Todos os conteúdos'} · ${f.screen ? esc(sn(f.screen)) : 'todas as telas'}</h3>
+    ${empty ? '<p class="mut">Ainda não há dados neste período. Os players enviam o relatório a cada minuto (precisam estar com a versão nova do player.html).</p>' : relChart(a, f) + `<div class="lg"><span><i style="background:var(--ac)"></i>Horas de exibição</span>${f.content ? '' : '<span><i style="background:var(--mut)"></i>Horas online</span>'}</div>`}</div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:14px;text-transform:uppercase">Por tela</h3><div class="tw"><table><thead><tr><th>Tela</th><th>Online</th><th>Exibição</th><th>Exibição / online</th><th>Exibições</th></tr></thead><tbody>${rowsS || '<tr><td colspan="5" class="mut">Sem dados</td></tr>'}</tbody></table></div></div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:14px;text-transform:uppercase">Por conteúdo</h3><div class="tw"><table><thead><tr><th>Conteúdo</th><th>Exibição</th><th>Média</th><th>% do total</th><th>Exibições</th></tr></thead><tbody>${rowsC || '<tr><td colspan="5" class="mut">Sem dados</td></tr>'}</tbody></table></div>
+  <p class="mut" style="font-size:13px">Clique numa linha para filtrar. A exibição pode passar de 100% do tempo online: a tela continua tocando sem internet e envia o relatório quando volta. Os dias seguem o fuso ${esc(d.tz)}.</p></div>`;
+}
+function relCsv() {
+  const d = R.data, [from, to] = relRange(iso(new Date())), q = v => `"${String(v).replace(/"/g, '""')}"`, out = ['Data;Tela;Conteúdo;Horas exibidas;Exibições'];
+  for (const day of Object.keys(d.days).sort()) for (const [sid, e] of Object.entries(d.days[day])) {
+    if (R.screen && R.screen !== sid) continue;
+    for (const [cid, [sec, n]] of Object.entries(e.c || {})) { if (R.content && R.content !== cid) continue;
+      out.push([day, q(d.screens[sid] || sid), q(d.names[cid] || cid), (sec / 3600).toFixed(2).replace('.', ','), n].join(';')); }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + out.join('\r\n')], { type: 'text/csv;charset=utf-8' })); a.download = `exibicao_${from}_${to}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+const pRel = () => relLoad();
+
 /* ---------- rotas ---------- */
 function route() {
   const [r = 'telas', id] = location.hash.replace(/^#\//, '').split('/');
   document.querySelectorAll('.side nav a').forEach(a => a.classList.toggle('on', a.dataset.r === r));
   sideStatus(); if (r !== 'listas' || !id) ed = null;
-  ({ telas: pTelas, arquivos: pArquivos, listas: () => id ? pEditor(id) : pListas(), status: pStatus, conta: pConta }[r] || pTelas)();
+  ({ telas: pTelas, arquivos: pArquivos, listas: () => id ? pEditor(id) : pListas(), relatorios: pRel, status: pStatus, conta: pConta }[r] || pTelas)();
 }
 addEventListener('hashchange', () => $('#page') && route());
 setInterval(async () => { if (!token || dlg.open || !$('#page')) return; try { await load(); } catch { return; } sideStatus();
