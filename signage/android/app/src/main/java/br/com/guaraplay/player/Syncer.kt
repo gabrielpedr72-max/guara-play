@@ -27,7 +27,7 @@ class Syncer(private val ctx: Context) : Runnable {
 
     override fun run() {
         while (true) {
-            try { cycle() } catch (_: Throwable) { }
+            try { cycle() } catch (e: Throwable) { Engine.lastError = "Resposta inesperada do servidor: ${e.javaClass.simpleName}" }
             try { Thread.sleep(10_000) } catch (_: InterruptedException) { }
         }
     }
@@ -38,8 +38,9 @@ class Syncer(private val ctx: Context) : Runnable {
             val c = URL(url).openConnection() as HttpURLConnection
             open = c
             c.connectTimeout = 8_000; c.readTimeout = 10_000
-            if (c.responseCode == 200) c.inputStream.bufferedReader().use { it.readText() } else null
-        } catch (_: Exception) { null } finally { open?.disconnect() }
+            if (c.responseCode == 200) c.inputStream.bufferedReader().use { it.readText() }
+            else { Engine.lastError = "O servidor respondeu HTTP ${c.responseCode} em $url"; null }
+        } catch (e: Exception) { Engine.lastError = "${e.javaClass.simpleName}: ${e.message} ($url)"; null } finally { open?.disconnect() }
     }
 
     private fun urlsOf(m: JSONObject): List<String> {
@@ -54,10 +55,11 @@ class Syncer(private val ctx: Context) : Runnable {
 
     private fun cycle() {
         val base = Config.url(ctx)
-        if (base.isBlank()) return
+        if (base.isBlank()) { Engine.lastError = "Endereço do servidor não configurado"; return }
         val txt = get("$base/api/player?device=${Config.deviceId(ctx)}&p=Android") ?: return // sem rede: segue tocando
         val m = JSONObject(txt)
         Engine.lastSyncOk = System.currentTimeMillis()
+        Engine.lastError = ""
         capture = m.optBoolean("capture")
         refreshHtml(base)
 

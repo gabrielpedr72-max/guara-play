@@ -58,7 +58,8 @@ class LocalServer(private val ctx: Context, private val syncer: Syncer) {
                 when {
                     method == "GET" && path == "/player.html" -> html(out)
                     method == "GET" && path == "/api/player" -> manifest(out)
-                    method == "POST" && path == "/api/player/capture" -> capture(inp, out, h)
+                    method == "POST" && path == "/api/player/capture" -> forward("capture", inp, out, h)
+                    method == "POST" && path == "/api/player/log" -> forward("log", inp, out, h)
                     method == "GET" && path.startsWith("/media/") -> media(out, path.removePrefix("/media/"), h["range"])
                     else -> send(out, 404, "text/plain", "nao encontrado".toByteArray())
                 }
@@ -93,13 +94,13 @@ class LocalServer(private val ctx: Context, private val syncer: Syncer) {
 
     private fun manifest(out: OutputStream) {
         val o = try { if (Store.current.exists()) JSONObject(Store.current.readText()) else null } catch (_: Exception) { null }
-            ?: JSONObject().put("paired", false).put("connecting", true)
+            ?: JSONObject().put("paired", false).put("connecting", true).put("error", Engine.lastError).put("server", Config.url(ctx))
         if (syncer.capture) { o.put("capture", true); syncer.capture = false }
         send(out, 200, "application/json", o.toString().toByteArray())
     }
 
     /** Repassa a captura de tela do player ao servidor, usando a identidade nativa da tela. */
-    private fun capture(inp: InputStream, out: OutputStream, h: Map<String, String>) {
+    private fun forward(endpoint: String, inp: InputStream, out: OutputStream, h: Map<String, String>) {
         val n = h["content-length"]?.toIntOrNull() ?: 0
         if (n <= 0 || n > 3_000_000) return send(out, 400, "application/json", "{}".toByteArray())
         val body = ByteArray(n)
@@ -107,7 +108,7 @@ class LocalServer(private val ctx: Context, private val syncer: Syncer) {
         while (off < n) { val r = inp.read(body, off, n - off); if (r < 0) break; off += r }
         var code = 502
         try {
-            val c = URL("${Config.url(ctx)}/api/player/capture?device=${Config.deviceId(ctx)}").openConnection() as HttpURLConnection
+            val c = URL("${Config.url(ctx)}/api/player/$endpoint?device=${Config.deviceId(ctx)}").openConnection() as HttpURLConnection
             c.requestMethod = "POST"; c.doOutput = true; c.connectTimeout = 8_000; c.readTimeout = 15_000
             c.outputStream.use { it.write(body) }
             code = c.responseCode; c.disconnect()

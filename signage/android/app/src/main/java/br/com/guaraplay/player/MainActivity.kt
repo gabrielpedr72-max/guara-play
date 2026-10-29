@@ -135,6 +135,7 @@ class MainActivity : Activity() {
                 "ID da tela: ${Config.deviceId(this).take(8)}\n" +
                 "Pareada: ${if (Config.paired(this)) "sim" else "não"}\n" +
                 "Última sincronização: ${Engine.lastSyncText()}\n" +
+                "Último erro: ${Engine.lastError.ifEmpty { "nenhum" }}\n" +
                 "Arquivos no aparelho: ${files.size} ($mb MB)\n" +
                 "Modo administrador: ${if (Kiosk.isOwner(this)) "ativo" else "inativo"}\n" +
                 "Versão: ${BuildConfig.VERSION_NAME}"

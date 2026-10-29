@@ -12,6 +12,7 @@ object Engine {
     @Volatile var activityVisible = false
     @Volatile var lastVisibleAt = System.currentTimeMillis()
     @Volatile var lastSyncOk = 0L
+    @Volatile var lastError = ""
     @Volatile var watchdogPausedUntil = 0L
     private var started = false
 

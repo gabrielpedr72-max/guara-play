@@ -21,8 +21,10 @@ if command -v java >/dev/null 2>&1; then
 fi
 if [ "$need_java" = 1 ]; then
   say "Instalando o Java 17 (vai pedir sua senha de administrador)"
-  sudo apt-get update -y && sudo apt-get install -y openjdk-17-jdk
+  sudo apt-get update -y || echo "AVISO: o apt-get update reclamou de algum repositório; tentando instalar mesmo assim."
+  sudo apt-get install -y openjdk-17-jdk
 fi
+command -v java >/dev/null 2>&1 || { echo "ERRO: o Java não foi instalado. Rode: sudo apt-get install -y openjdk-17-jdk"; exit 1; }
 for t in unzip curl; do command -v $t >/dev/null 2>&1 || { sudo apt-get update -y; sudo apt-get install -y $t; }; done
 
 # 2) Ferramentas do Android SDK

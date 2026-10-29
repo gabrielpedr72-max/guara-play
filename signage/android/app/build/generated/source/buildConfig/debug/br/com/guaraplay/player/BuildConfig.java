@@ -12,5 +12,5 @@ public final class BuildConfig {
   // Field from default config.
   public static final String ADMIN_PIN = "1012";
   // Field from default config.
-  public static final String DEFAULT_SERVER_URL = "https://painel.seudominio.com.br";
+  public static final String DEFAULT_SERVER_URL = "";
 }
